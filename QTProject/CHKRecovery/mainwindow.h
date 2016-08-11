@@ -15,6 +15,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QDir>
+#include <QFileInfo>
 
 class MainWindow : public QMainWindow
 {
@@ -40,12 +41,16 @@ private:
         QGridLayout *mainLayout;
             QTreeWidget *filetree;
 
-    QDir *chkdir, *recdir;
+    QDir *recdir;
+
+    QFileInfoList GetFileList(QDir dir);
+    QFileInfoList FilterSuffix(QFileInfoList filelist);
 
 
 private slots:
     void on_findpath();
     void on_recpath();
+    void on_help();
 
 };
 
