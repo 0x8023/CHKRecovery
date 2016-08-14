@@ -61,14 +61,33 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::on_findpath(){
-    QDir *chkdir;
-    while (true){
-        chkdir = new QDir(QFileDialog::getExistingDirectory(this, "请选择包含有.CHK文件的目录以便程序搜索:"));
-        if (!chkdir->exists()){
-            QMessageBox::StandardButton flag = QMessageBox::question(this,"选择路径有误!","请检查所选择的路径.\n是否重新选择?");
-            if (flag != QMessageBox::Yes) break;
-        }else break;
+    QFile cfg("regulation.cfg");
+    if (cfg.open(QFile::ReadOnly)){
+        QTextStream stream(&cfg);
+        while (!stream.atEnd()){
+            QStringList line = stream.readLine().split(" ");
+            Hex2Suffix[line[0]] = line[1];
+        }
+        cfg.close();
     }
+
+    QString dir = GetDir("请选择包含有.CHK文件的目录以便程序搜索:");
+    QFileInfoList FileInfoList = FilterSuffix(GetFileList(dir), "chk");
+    for(qint64 i = FileInfoList.size()-1; i>=0; i--){
+        QFile file(FileInfoList[i].filePath());
+        if(file.open(QIODevice::ReadOnly)){
+            File2Hex[file.fileName()] = file.read(3).toHex();
+            file.close();
+        }
+    }
+
+    QHash<QString, QString>::const_iterator iter;
+    for (iter = File2Hex.constBegin(); iter != File2Hex.constEnd(); iter++) {
+        if (Hex2Suffix.contains(iter.value())){
+            qDebug() << iter.key() << ":" << iter.value() << ":" << Hex2Suffix[iter.value()];
+        }
+    }
+
 }
 
 void MainWindow::on_recpath(){
@@ -82,25 +101,36 @@ void MainWindow::on_recpath(){
 }
 
 void MainWindow::on_help(){
-    QDir *test = new QDir("D:/Solutions/CHKRecovery/QTProject/testDir/之前");
-    QFileInfoList a = GetFileList(*test);
-    a = FilterSuffix(a);
+
 
 }
 
-QFileInfoList MainWindow::GetFileList(QDir dir){
+QString MainWindow::GetDir(QString title){
+    QDir dir;
+    while (true){
+        dir.setPath(QFileDialog::getExistingDirectory(this, title));
+        if (!dir.exists()){
+            QMessageBox::StandardButton flag = QMessageBox::question(this, "选择路径有误!", "请检查所选择的路径.\n是否重新选择?");
+            if (flag != QMessageBox::Yes) break;
+        }else break;
+    }
+    return dir.path();
+}
+
+QFileInfoList MainWindow::GetFileList(QString path){
+    QDir dir(path);
     QFileInfoList file_list = dir.entryInfoList(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
     QFileInfoList folder_list = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
     for (qint64 i = 0; i < folder_list.size(); i++){
-         file_list.append(GetFileList(QDir(folder_list[i].absoluteFilePath())));
+         file_list.append(GetFileList(folder_list[i].absoluteFilePath()));
     }
     return file_list;
 }
 
-QFileInfoList MainWindow::FilterSuffix(QFileInfoList filelist){
+QFileInfoList MainWindow::FilterSuffix(QFileInfoList filelist, QString suffix){
     QFileInfoList fl = filelist;
     for (qint64 i = fl.size()-1; i >= 0; i--){
-        if (fl[i].suffix().compare("CHK", Qt::CaseInsensitive) != 0){
+        if (fl[i].suffix().compare(suffix, Qt::CaseInsensitive) != 0){
             fl.removeAt(i);
         }
     }

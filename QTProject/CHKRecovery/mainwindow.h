@@ -41,10 +41,13 @@ private:
         QGridLayout *mainLayout;
             QTreeWidget *filetree;
 
-    QDir *recdir;
+//    QDir *recdir;
+    QHash<QString,QString> File2Hex;
+    QHash<QString,QString> Hex2Suffix;
 
-    QFileInfoList GetFileList(QDir dir);
-    QFileInfoList FilterSuffix(QFileInfoList filelist);
+    QFileInfoList GetFileList(QString path);
+    QFileInfoList FilterSuffix(QFileInfoList filelist, QString suffix);
+    QString GetDir(QString title);
 
 
 private slots:
