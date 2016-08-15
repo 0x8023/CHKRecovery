@@ -34,7 +34,8 @@ MainWindow::MainWindow(QWidget *parent)
     mainwidget = new QWidget(this);
         mainLayout = new QGridLayout(mainwidget);
             filetree = new QTreeWidget();
-//            filetree
+            filetree->setColumnCount(1);
+            filetree->setHeaderLabel("请选择需要恢复的文件:");
                 mainLayout->addWidget(filetree);
         mainwidget->setLayout(mainLayout);
     this->setCentralWidget(mainwidget);
@@ -85,12 +86,30 @@ void MainWindow::on_findpath(){
     for (iter = File2Hex.constBegin(); iter != File2Hex.constEnd(); iter++) {
         if (Hex2Suffix.contains(iter.value())){
             qDebug() << iter.key() << ":" << iter.value() << ":" << Hex2Suffix[iter.value()];
+            QTreeWidgetItem *imageItem1 = new QTreeWidgetItem(filetree, QStringList(Hex2Suffix[iter.value()]));
         }
     }
+    filetree->expandAll(); //结点全部展开
 
 }
 
 void MainWindow::on_recpath(){
+
+//    QTreeWidgetItem *imageItem1 = new QTreeWidgetItem(filetree,QStringList(QString("图像1")));
+//    QTreeWidgetItem *imageItem1_1 = new QTreeWidgetItem(imageItem1,QStringList(QString("Band1"))); //子节点1
+//    imageItem1->addChild(imageItem1_1); //添加子节点
+
+//    QTreeWidgetItem *imageItem2 = new QTreeWidgetItem(filetree,QStringList(QString("图像2")));
+//    QTreeWidgetItem *imageItem2_1 = new QTreeWidgetItem(imageItem2,QStringList(QString("Band1"))); //子节点1
+//    QTreeWidgetItem *imageItem2_2 = new QTreeWidgetItem(imageItem2,QStringList(QString("Band2"))); //子节点2
+//    imageItem2->addChild(imageItem2_1);  //添加子节点
+//    imageItem2->addChild(imageItem2_2);
+
+    QTreeWidgetItem *imageItem1 = new QTreeWidgetItem(filetree,QStringList("2333"));
+    QTreeWidgetItem *imageItem1_1 = new QTreeWidgetItem(imageItem1,QStringList(QString("Band1"))); //子节点1
+    imageItem1->addChild(imageItem1_1); //添加子节点
+
+    filetree->expandAll(); //结点全部展开
 //    while (true){
 //        recPath = QFileDialog::getExistingDirectory(this, "请选择目录以便存放恢复成功的文件:");
 //        if (recPath == ""){
@@ -101,7 +120,6 @@ void MainWindow::on_recpath(){
 }
 
 void MainWindow::on_help(){
-
 
 }
 
